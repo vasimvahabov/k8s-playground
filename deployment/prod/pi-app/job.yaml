@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi-app
+spec:
+  backoffLimit: 2
+  parallelism: 2
+  template:
+    metadata:
+      labels:
+        app: pi-app
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pi-app
+        image: pi-app:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: REDIS_HOST
+          value: redis-0.redis
+        resources:
+          requests:
+            cpu: 200m
+            memory: 200Mi
+          limits:
+            cpu: 400m
+            memory: 400Mi

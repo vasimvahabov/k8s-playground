@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-robohash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: robohash
+  template:
+    metadata:
+      labels:
+        app: robohash
+    spec:
+      containers:
+        - name: robohash
+          image: ghcr.io/e1ven/robohash:latest
+          imagePullPolicy: Always

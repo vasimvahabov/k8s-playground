@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: pi-app
+  lifecycle:
+    timeout-per-shutdown-phase: 120s
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+
+server:
+  port: 9091

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  labels:
+    app: mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+       app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:12.1.1-rc
+          env:
+          - name: MARIADB_ROOT_PASSWORD
+            value: "mariadb"
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: volume-mariadb
+          resources:
+            requests:
+              cpu: 1
+              memory: 2Gi
+      volumes:
+        - name: volume-mariadb
+          persistentVolumeClaim:
+            claimName: pvc-mariadb

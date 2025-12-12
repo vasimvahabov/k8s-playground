@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-reader
+spec:
+  selector:
+    matchLabels:
+      app: log-reader
+  template:
+    metadata:
+      labels:
+        app: log-reader
+    spec:
+      containers:
+      - image: debian:bookworm
+        name: log-reader
+        command:
+          - bash
+          - "-c"
+          - |
+            tail -F /var/log/containers/*_kube-system_*.log
+        resources:
+          requests:
+            cpu: 50m
+            memory: 100Mi
+            ephemeral-storage: 100Mi
+          limits:
+            cpu: 50m
+            memory: 100Mi
+        securityContext:
+          # privileged: true
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+          # readOnly: true
+        - name: docker-lib
+          mountPath: /var/lib/docker
+          # readOnly: true
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+      - name: docker-lib
+        hostPath:
+          path: /var/lib/docker
+

@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: indexed-worker
+spec:
+  completions: 30
+  parallelism: 3
+  completionMode: Indexed
+  template:
+    metadata:
+      labels:
+        app: indexed-worker
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: indexed-worker
+          image: 'docker.io/library/busybox'
+          command: ["echo", "Job Completion Index : $(JOB_COMPLETION_INDEX)"]

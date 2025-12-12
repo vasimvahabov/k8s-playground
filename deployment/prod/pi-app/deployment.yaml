@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pi-app
+spec:
+  selector:
+    matchLabels:
+      app: pi-app
+  template:
+    metadata:
+      labels:
+        app: pi-app
+    spec:
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: pi-app
+          image: pi-app:latest
+          imagePullPolicy: Never
+          env:
+            - name: REDIS_HOST
+              value: redis-0.redis
+          ports:
+            - containerPort: 9091
+          resources:
+            requests:
+              cpu: 200m
+              memory: 250Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+          livenessProbe:
+            initialDelaySeconds: 60
+            failureThreshold: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+            periodSeconds: 30
+            exec:
+              command: ["./liveness-check.sh", "timestamp.current", "300"]

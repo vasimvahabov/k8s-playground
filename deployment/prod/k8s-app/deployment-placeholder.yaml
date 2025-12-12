@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app-placeholder
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: k8s-app-placeholder
+  template:
+    metadata:
+      labels:
+        app: k8s-app-placeholder
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: k8s-app-placeholder
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - k8s-app
+        # podAntiAffinity:
+          # requiredDuringSchedulingIgnoredDuringExecution:
+            # - topologyKey: "kubernetes.io/hostname"
+              # labelSelector:
+                # matchExpressions:
+                  # - key: app
+                    # operator: In
+                    # values:
+                      # - k8s-app
+      # nodeSelector:
+        # kubernetes.io/arch: arm64
+      #   group: "2"
+      # tolerations:
+      #   - key: group
+      #     operator: Equal
+      #     value: "2"
+      #     effect: NoSchedule
+      # affinity:
+      #   nodeAffinity:
+      #     preferredDuringSchedulingIgnoredDuringExecution:
+      #     - weight: 100
+      #       preference:
+      #         matchExpressions:
+      #         - key: kubernetes.io/arch
+      #           operator: In
+      #           values:
+      #             - arm64
+          # requiredDuringSchedulingIgnoredDuringExecution:
+            # nodeSelectorTerms:
+            #   - matchExpressions:
+            #       - key: kubernetes.io/arch
+            #         operator: In
+            #         values:
+            #           - arm64
+
+      automountServiceAccountToken: false
+      priorityClassName: k8s-app-placeholder
+      containers:
+      - name: k8s-app-placeholder
+        image: ubuntu:22.04
+        imagePullPolicy: IfNotPresent
+        command: [sleep]
+        args:
+          - infinity
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi

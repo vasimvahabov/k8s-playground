@@ -1,0 +1,19 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: developer
+rules:
+  - apiGroups:
+      - ""
+      - scheduling.k8s.io
+      - storage.k8s.io
+    resources:
+      - priorityclasses
+      - storageclasses
+      - persistentvolumes
+      - namespaces
+    verbs:
+      - "create"
+      - "list"
+      - "watch"
+

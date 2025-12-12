@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sts-mariadb
+spec:
+  serviceName: service-mariadb
+  selector:
+    matchLabels:
+      app: mariadb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+       app: mariadb
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mariadb
+          image: mariadb:12.1.1-rc
+          env:
+          - name: MARIADB_ROOT_PASSWORD
+            value: "mariadb"
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: pvc-mariadb
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc-mariadb
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi

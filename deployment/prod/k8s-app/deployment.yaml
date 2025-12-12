@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: k8s-app
+  template:
+    metadata:
+      labels:
+        app: k8s-app
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: k8s-app
+      # nodeSelector:
+      #   group: "3"
+      # tolerations:
+      #   - key: group
+      #     operator: Equal
+      #     value: "3"
+      #     effect: NoSchedule
+        # - key: spot
+          # value: "true"
+        # - effect: NoExecute
+        #   operator: Exists
+        # - effect: NoSchedule
+        #   operator: Exists
+      automountServiceAccountToken: false
+      priorityClassName: k8s-app
+      containers:
+      - name: k8s-app
+        image: k8s-app:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+          - name: k8s-app-cache
+            mountPath: "/tmp/k8s-app-cache"
+        env:
+        # - name: ROBOHASH_ENDPOINT
+        #   value: http://$(ROBOHASH_SERVICE_HOST):$(ROBOHASH_SERVICE_PORT)
+        - name: ROBOHASH_ENDPOINT
+          value: http://robohash
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1001
+          seccompProfile:
+            type: RuntimeDefault
+          capabilities:
+            drop:
+              - ALL
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
+        readinessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          timeoutSeconds: 2
+          failureThreshold: 1
+          successThreshold: 1
+          httpGet:
+            path: /readz
+            port: 9090
+            scheme: HTTP
+        livenessProbe:
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+          httpGet:
+            path: /healtz
+            port: 9090
+            scheme: HTTP
+      volumes:
+        - name: k8s-app-cache
+          emptyDir: {}

@@ -1,0 +1,9 @@
+services:
+  k8s-app:
+    build: .
+    image: k8s-app:latest
+    ports:
+      - "9090:9090"
+    command: sleep 5000m
+    environment:
+      JAVA_ARGS: ""
