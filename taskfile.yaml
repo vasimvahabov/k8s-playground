@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  GREETING: Hello, world!
+  COMMIT_HASH:
+    sh: git rev-parse HEAD
+
+tasks:
+  default:
+    cmds:
+      - task: clean
+      - task: build-dev
+      - task: image-dev
+
+  clean:
+    desc: Clean previous builds
+    cmds:
+      # - yes | docker system prune -a
+      - cd k8s-app  && ./gradlew clean
+      - cd pi-app && ./gradlew clean
+
+  build-dev:
+    desc: Build Java Apps
+    cmds:
+      - cd k8s-app  && ./gradlew build
+      - cd pi-app  && ./gradlew build
+
+  image-dev:
+    desc: Build OCI Images
+    cmds:
+      - docker build -t k8s-app:{{.COMMIT_HASH}} k8s-app
+      - docker tag k8s-app:{{.COMMIT_HASH}} k8s-app:latest
+      - docker build -t pi-app:{{.COMMIT_HASH}} pi-app
+      - docker tag pi-app:{{.COMMIT_HASH}} pi-app:latest
